@@ -19,7 +19,7 @@ export default function CalculatorWrapper() {
           </h2>
           <ol className="list-decimal list-inside space-y-3 text-gray-600 dark:text-gray-400">
             <li>Enter the current price of your asset in the input field</li>
-            <li>Click the "Calculate Levels" button</li>
+            <li>Click the &quot;Calculate Levels&quot; button</li>
             <li>Review the support and resistance levels generated</li>
             <li>Use these levels as potential price targets or reversal points</li>
           </ol>

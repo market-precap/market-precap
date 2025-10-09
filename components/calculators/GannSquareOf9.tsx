@@ -140,18 +140,15 @@ const computeGannLevelsRefined = (currentPrice: number): GannRecommendation => {
   const sellEntry = sellLevels[0] || currentPrice * (1 - 0.005); // 0.5% below
   
   // Generate targets based on available levels or percentage increments
-  const generateTargets = (basePrice: number, isUp: boolean, count: number): number[] => {
+    const generateTargets = (basePrice: number, isUp: boolean, count: number): number[] => {
     const targets: number[] = [];
-    const increment = basePrice * 0.005; // 0.5% increments
-    
+    // Calculate targets with percentage increments
     for (let i = 1; i <= count; i++) {
       targets.push(basePrice * (1 + (isUp ? 1 : -1) * (i * 0.005)));
     }
     
     return targets;
-  };
-
-  // Get targets (next 3 levels)
+  };  // Get targets (next 3 levels)
   const buyTargets = buyLevels.slice(1, 4).length ? 
     buyLevels.slice(1, 4) : 
     generateTargets(buyEntry, true, 3);
@@ -199,7 +196,7 @@ const GannSquareOf9 = () => {
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content', 
-        'Professional Gann Square of 9 calculator for intraday trading. Calculate support, resistance levels, and get trading recommendations based on W.D. Gann\'s mathematical principles.');
+        `Professional Gann Square of 9 calculator for intraday trading. Calculate support, resistance levels, and get trading recommendations based on W.D. Gann&apos;s mathematical principles.`);
     }
   }, []);
 
@@ -451,7 +448,7 @@ const GannSquareOf9 = () => {
             Gann Square of 9 Calculator for Intraday Trading
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Calculate precise Gann Square of 9 levels, support/resistance zones, and intraday trading recommendations based on W.D. Gann's mathematical principles.
+            Calculate precise Gann Square of 9 levels, support/resistance zones, and intraday trading recommendations based on W.D. Gann&apos;s mathematical principles.
           </p>
           {/* Meta description for SEO */}
           <div className="hidden">

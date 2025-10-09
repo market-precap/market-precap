@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import CalculatorClientWrapper from './calculator';
 
 export const metadata: Metadata = {
@@ -14,17 +15,17 @@ export default function Page() {
         <nav className="mb-8">
           <ol className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
             <li>
-              <a href="/" className="hover:text-gray-700 dark:hover:text-gray-300">
+              <Link href="/" className="hover:text-gray-700 dark:hover:text-gray-300">
                 Home
-              </a>
+              </Link>
             </li>
             <li>
               <span className="mx-2">/</span>
             </li>
             <li>
-              <a href="/calculators" className="hover:text-gray-700 dark:hover:text-gray-300">
+              <Link href="/calculators" className="hover:text-gray-700 dark:hover:text-gray-300">
                 Calculators
-              </a>
+              </Link>
             </li>
             <li>
               <span className="mx-2">/</span>
@@ -49,7 +50,7 @@ export default function Page() {
               </h2>
               <ol className="list-decimal list-inside space-y-3 text-gray-600 dark:text-gray-400">
                 <li>Enter the current price of your asset in the input field</li>
-                <li>Click the "Calculate Levels" button</li>
+                <li>Click the &quot;Calculate Levels&quot; button</li>
                 <li>Review the support and resistance levels generated</li>
                 <li>Use these levels as potential price targets or reversal points</li>
               </ol>

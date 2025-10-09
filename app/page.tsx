@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -20,7 +20,7 @@ export default function Home() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Gann Square Calculator Card */}
-          <a
+          <Link
             href="/calculators/gann-square-of-9"
             className="group block bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden"
           >
@@ -29,7 +29,7 @@ export default function Home() {
                 Gann Square of 9 Calculator
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Calculate support and resistance levels using W.D. Gann's Square of 9 technique.
+                Calculate support and resistance levels using W.D. Gann&apos;s Square of 9 technique.
               </p>
               <div className="mt-4 flex items-center text-blue-600 dark:text-blue-400">
                 <span>Try Calculator</span>
@@ -48,7 +48,7 @@ export default function Home() {
                 </svg>
               </div>
             </div>
-          </a>
+          </Link>
 
           {/* Placeholder for future calculators */}
           <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-6 border-2 border-dashed border-gray-200 dark:border-gray-700">
@@ -57,7 +57,7 @@ export default function Home() {
                 More Calculators Coming Soon
               </h3>
               <p className="text-gray-500 dark:text-gray-400">
-                We're working on adding more trading calculators and tools.
+                We&apos;re working on adding more trading calculators and tools.
               </p>
             </div>
           </div>
