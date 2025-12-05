@@ -51,17 +51,7 @@ const formatTime = (hour: number, minute: number, addMinutes: number): string =>
 };
 
 // Square of 9 helper functions
-const squareOf9Level = (basePrice: number, degree: number): number => {
-  const root = Math.sqrt(basePrice);
-  const newPrice = Math.pow(root + (degree / 360), 2);
-  return +newPrice.toFixed(2);
-};
 
-const squareOf9LevelDown = (basePrice: number, degree: number): number => {
-  const root = Math.sqrt(basePrice);
-  const newPrice = Math.pow(root - (degree / 360), 2);
-  return +newPrice.toFixed(2);
-};
 
 // Helper function to calculate volume threshold based on price
 const calculateVolumeThreshold = (price: number): number => {
@@ -74,108 +64,70 @@ const calculateVolumeThreshold = (price: number): number => {
 
 // Main calculation function using Gann degrees
 const computeGannLevelsRefined = (currentPrice: number): GannRecommendation => {
-  // Define Gann degrees with finer increments for more precise levels
-  const stepDegrees = [22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180];
-  
-  // Initialize arrays for buy and sell levels
-  const buyLevels: number[] = [];
-  const sellLevels: number[] = [];
+  // Logic based on Standard Gann Square of 9 Formula with precision adjustments
+  // 1. Levels are based on 1/8th increments of the square root (corresponding to 45 degrees).
+  // 2. Entries are the nearest 1/8th levels enclosing the current price.
+  // 3. Targets include a 0.05% buffer (below resistance for buy, above support for sell).
 
-  // Dynamic range calculation based on price
-  const getMaxRange = (price: number): number => {
-    // Lower percentage range for higher prices
-    if (price > 1000) return 0.02; // 2%
-    if (price > 500) return 0.025; // 2.5%
-    return 0.03; // 3%
-  };
+  const root = Math.sqrt(currentPrice);
+  const factorVal = root * 8;
 
-  const maxRange = getMaxRange(currentPrice);
-  
-  // Calculate levels for each degree with increased precision
-  stepDegrees.forEach(degree => {
-    const buyLevel = squareOf9Level(currentPrice, degree);
-    const sellLevel = squareOf9LevelDown(currentPrice, degree);
-    
-    // Add buy levels above current price with dynamic range
-    if (buyLevel > currentPrice && 
-        buyLevel <= currentPrice * (1 + maxRange)) {
-      buyLevels.push(buyLevel);
-    }
-    
-    // Add sell levels below current price with dynamic range
-    if (sellLevel < currentPrice && 
-        sellLevel >= currentPrice * (1 - maxRange)) {
-      sellLevels.push(sellLevel);
-    }
-  });
-  
-  // If no levels found with initial range, try with expanded range
-  if (buyLevels.length === 0 || sellLevels.length === 0) {
-    stepDegrees.forEach(degree => {
-      const buyLevel = squareOf9Level(currentPrice, degree);
-      const sellLevel = squareOf9LevelDown(currentPrice, degree);
-      
-      // Add buy levels with expanded range
-      if (buyLevel > currentPrice && 
-          buyLevel <= currentPrice * (1 + maxRange * 1.5) &&
-          !buyLevels.includes(buyLevel)) {
-        buyLevels.push(buyLevel);
-      }
-      
-      // Add sell levels with expanded range
-      if (sellLevel < currentPrice && 
-          sellLevel >= currentPrice * (1 - maxRange * 1.5) &&
-          !sellLevels.includes(sellLevel)) {
-        sellLevels.push(sellLevel);
-      }
-    });
+  // Find nearest 1/8th factors
+  let lowerFactor = Math.floor(factorVal) / 8;
+  let upperFactor = Math.ceil(factorVal) / 8;
+
+  // Calculate potential entries
+  let buyEntry = Math.pow(upperFactor, 2);
+  let sellEntry = Math.pow(lowerFactor, 2);
+
+  // Adjust if price is exactly on a level or too close (floating point tolerance)
+  // If Buy Entry is too close to Current Price, move to next level
+  if (buyEntry <= currentPrice + 0.005) {
+    upperFactor += 0.125;
+    buyEntry = Math.pow(upperFactor, 2);
   }
-  
-  // Sort levels appropriately
-  buyLevels.sort((a, b) => a - b);  // ascending
-  sellLevels.sort((a, b) => b - a);  // descending
-  
-  // If still no levels found, use default percentage-based levels
-  const buyEntry = buyLevels[0] || currentPrice * (1 + 0.005); // 0.5% above
-  const sellEntry = sellLevels[0] || currentPrice * (1 - 0.005); // 0.5% below
-  
-  // Generate targets based on available levels or percentage increments
-    const generateTargets = (basePrice: number, isUp: boolean, count: number): number[] => {
-    const targets: number[] = [];
-    // Calculate targets with percentage increments
-    for (let i = 1; i <= count; i++) {
-      targets.push(basePrice * (1 + (isUp ? 1 : -1) * (i * 0.005)));
-    }
-    
-    return targets;
-  };  // Get targets (next 3 levels)
-  const buyTargets = buyLevels.slice(1, 4).length ? 
-    buyLevels.slice(1, 4) : 
-    generateTargets(buyEntry, true, 3);
-  
-  const sellTargets = sellLevels.slice(1, 4).length ?
-    sellLevels.slice(1, 4) :
-    generateTargets(sellEntry, false, 3);
-  
-  // Calculate stop-loss levels with tighter ranges for higher prices
-  const stopLossPercentage = currentPrice > 1000 ? 0.003 : 
-                            currentPrice > 500 ? 0.004 : 
-                            0.005;
-                            
-  const buyStoploss = Math.min(sellEntry, currentPrice * (1 - stopLossPercentage));
-  const sellStoploss = Math.max(buyEntry, currentPrice * (1 + stopLossPercentage));
-  
-  // Stoploss levels (optimized for 15-min)
-  // Calculate volume threshold
+
+  // If Sell Entry is too close to Current Price, move to prev level
+  if (sellEntry >= currentPrice - 0.005) {
+    lowerFactor -= 0.125;
+    sellEntry = Math.pow(lowerFactor, 2);
+  }
+
+  // Generate Targets
+  // Buy Targets: Next levels - 0.05% buffer
+  const buyTargets: number[] = [];
+  for (let i = 1; i <= 5; i++) {
+    const targetFactor = upperFactor + (i * 0.125);
+    const nominalTarget = Math.pow(targetFactor, 2);
+    // Apply 0.05% buffer (target is slightly BEFORE the resistance line)
+    buyTargets.push(nominalTarget * 0.9995);
+  }
+
+  // Sell Targets: Next levels + 0.05% buffer
+  const sellTargets: number[] = [];
+  for (let i = 1; i <= 5; i++) {
+    const targetFactor = lowerFactor - (i * 0.125);
+    const nominalTarget = Math.pow(targetFactor, 2);
+    // Apply 0.05% buffer (target is slightly BEFORE the support line)
+    sellTargets.push(nominalTarget * 1.0005);
+  }
+
+  // Stoplosses
+  // Buy Stoploss = Sell Entry Level
+  const buyStoploss = sellEntry;
+  // Sell Stoploss = Buy Entry Level
+  const sellStoploss = buyEntry;
+
+  // Volume threshold calculation
   const volumeThreshold = calculateVolumeThreshold(currentPrice);
-  
+
   return {
-    buyEntry,
-    buyTargets,
-    buyStoploss,
-    sellEntry,
-    sellTargets,
-    sellStoploss,
+    buyEntry: +buyEntry.toFixed(2),
+    buyTargets: buyTargets.map(t => +t.toFixed(2)),
+    buyStoploss: +buyStoploss.toFixed(2),
+    sellEntry: +sellEntry.toFixed(2),
+    sellTargets: sellTargets.map(t => +t.toFixed(2)),
+    sellStoploss: +sellStoploss.toFixed(2),
     volumeProfile: {
       threshold: volumeThreshold,
       timeframe: '15min'
@@ -195,7 +147,7 @@ const GannSquareOf9 = () => {
     document.title = 'Gann Square of 9 Calculator | Professional Trading Tool';
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 
+      metaDescription.setAttribute('content',
         `Professional Gann Square of 9 calculator for intraday trading. Calculate support, resistance levels, and get trading recommendations based on W.D. Gann&apos;s mathematical principles.`);
     }
   }, []);
@@ -232,22 +184,22 @@ const GannSquareOf9 = () => {
   const calculateGannLevels = (basePrice: number): GannLevel[] => {
     const recommendation = computeGannLevelsRefined(basePrice);
     setRecommendation(recommendation);
-    
+
     const getCurrentMarketTime = () => {
       const now = new Date();
       const hour = now.getHours();
       const minute = now.getMinutes();
-      if (hour < tradingStartTime.hour || 
-          (hour === tradingStartTime.hour && minute < tradingStartTime.minute) ||
-          hour > marketEndTime.hour ||
-          (hour === marketEndTime.hour && minute > marketEndTime.minute)) {
+      if (hour < tradingStartTime.hour ||
+        (hour === tradingStartTime.hour && minute < tradingStartTime.minute) ||
+        hour > marketEndTime.hour ||
+        (hour === marketEndTime.hour && minute > marketEndTime.minute)) {
         return tradingStartTime;
       }
       return { hour, minute };
     };
 
     const currentTime = getCurrentMarketTime();
-    
+
     const newLevels = [
       // Buy levels with enhanced metadata
       ...recommendation.buyTargets.map((price, idx) => ({
@@ -312,7 +264,7 @@ const GannSquareOf9 = () => {
                   <div className="grid grid-cols-2 gap-2">
                     {recommendation.buyTargets.map((target, index) => (
                       <div key={index} className="bg-white dark:bg-gray-800 rounded p-2 border border-green-200 dark:border-green-900">
-                                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
                           Target {index + 1} ({timeFrames[index]} min)
                         </div>
                         <div className="text-green-700 dark:text-green-400 font-medium">₹{target.toFixed(2)}</div>
@@ -485,11 +437,11 @@ const GannSquareOf9 = () => {
         </section>
 
         {/* Quick Trading Instructions with semantic markup */}
-        <section 
-          aria-label="Trading Instructions" 
-          role="complementary" 
+        <section
+          aria-label="Trading Instructions"
+          role="complementary"
           className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg p-6 mb-8"
-          itemScope 
+          itemScope
           itemType="https://schema.org/HowTo">
           <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-4">
             Quick Trading Guide
