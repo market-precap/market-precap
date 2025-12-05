@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
-import Button from '@/components/ui/Button';
+
 
 interface FireResult {
     fireNumber: number;
@@ -21,7 +21,7 @@ const FireCalculator = () => {
     const [inflation, setInflation] = useState<string>('3');
     const [result, setResult] = useState<FireResult | null>(null);
 
-    const calculateFire = () => {
+    const calculateFire = useCallback(() => {
         const annualExpenses = parseFloat(expenses);
         const currentSavings = parseFloat(savings);
         const annualContribution = parseFloat(contribution);
@@ -74,11 +74,11 @@ const FireCalculator = () => {
                 ageAtFire: !isNaN(age) ? age + years : undefined,
             });
         }
-    };
+    }, [expenses, savings, contribution, withdrawalRate, returnRate, currentAge, inflation]);
 
     useEffect(() => {
         calculateFire();
-    }, [expenses, savings, contribution, withdrawalRate, returnRate, currentAge, inflation]);
+    }, [calculateFire]);
 
     return (
         <Card className="p-6">

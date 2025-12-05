@@ -81,6 +81,37 @@ export default function Home() {
             </div>
           </Link>
 
+          {/* Mutual Fund Calculator Card */}
+          <Link
+            href="/calculators/mutual-fund-returns"
+            className="group block bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+          >
+            <div className="p-6">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                Mutual Fund Returns
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400">
+                Calculate returns on your SIP and Lumpsum mutual fund investments.
+              </p>
+              <div className="mt-4 flex items-center text-blue-600 dark:text-blue-400">
+                <span>Try Calculator</span>
+                <svg
+                  className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </div>
+            </div>
+          </Link>
+
           {/* Placeholder for future calculators */}
           <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-6 border-2 border-dashed border-gray-200 dark:border-gray-700">
             <div className="text-center">

@@ -50,7 +50,7 @@ export default function Page() {
 
                         <h3 className="text-xl font-semibold text-gray-900 dark:text-white">The 4% Rule</h3>
                         <p className="text-gray-600 dark:text-gray-400">
-                            A common rule of thumb for FIRE is the "4% Rule," which states that if you can live on 4% of your portfolio in the first year of retirement, and adjust that amount for inflation in subsequent years, your money has a very high probability of lasting 30 years or more.
+                            A common rule of thumb for FIRE is the &quot;4% Rule,&quot; which states that if you can live on 4% of your portfolio in the first year of retirement, and adjust that amount for inflation in subsequent years, your money has a very high probability of lasting 30 years or more.
                         </p>
                         <p className="text-gray-600 dark:text-gray-400">
                             To find your FIRE number based on the 4% rule, simply multiply your annual expenses by 25.
